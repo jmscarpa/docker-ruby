@@ -9,11 +9,11 @@ RUN apt-get update -qq && \
 
 ENV LANG C.UTF-8
 
-COPY ./__docker/.irbrc /root
-COPY ./__docker/.pryrc /root
+COPY ./.irbrc /root
+COPY ./.pryrc /root
 
 # Reference: https://github.com/jfroom/docker-compose-rails-selenium-example
-COPY ./__docker/docker-entrypoint.sh /
+COPY ./docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 RUN chmod +x /docker-entrypoint.sh
 
