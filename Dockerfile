@@ -4,8 +4,11 @@ LABEL maintainer "Embras Labs <labs@embras.net>"
 EXPOSE 3000
 WORKDIR /app
 
+ENV TZ=America/Sao_Paulo
+
 RUN apt-get update -qq && \
-	apt-get install -y libpq-dev nodejs build-essential locales firebird-dev
+	apt-get install -y libpq-dev nodejs build-essential locales firebird-dev && \
+  ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ENV LANG C.UTF-8
 
