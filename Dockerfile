@@ -4,7 +4,7 @@ LABEL maintainer "Embras Labs <labs@embras.net>"
 EXPOSE 3000
 WORKDIR /app
 
-ENV TZ=America/Sao_Paulo
+ENV TZ=Etc/UTC
 
 RUN apt-get update -qq && \
 	apt-get install -y libpq-dev nodejs build-essential locales firebird-dev tzdata && \
