@@ -5,7 +5,7 @@ Pry.config.prompt = proc do |obj, level, _|
   prompt << "#{RUBY_VERSION}"
   prompt = ""
   "#{prompt} (#{obj})> "
-  "\033[1;36m#{Rails.application.class.parent_name}\e[m#{tenant_name} >> "
+  "\033[1;36m#{Rails.application.class.try(:module_parent_name) || Rails.application.class.parent_name}\e[m#{tenant_name} >> "
 end
 
 if defined?(Rails) && Rails.env

@@ -14,6 +14,7 @@ ENV LANG C.UTF-8
 
 COPY ./.irbrc /root
 COPY ./.pryrc /root
+COPY ./.bashrc /root
 
 # Reference: https://github.com/jfroom/docker-compose-rails-selenium-example
 COPY ./docker-entrypoint.sh /
