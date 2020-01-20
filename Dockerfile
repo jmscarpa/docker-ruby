@@ -4,17 +4,21 @@ LABEL maintainer "Embras Labs <labs@embras.net>"
 EXPOSE 3000
 WORKDIR /app
 
+ARG _USER=home/labs
+
 ENV TZ=Etc/UTC
 
 RUN apt-get update -qq && \
 	apt-get install -y libpq-dev nodejs build-essential locales firebird-dev tzdata && \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    adduser labs && mkdir /.gems && chown -R labs:labs /.gems
+
 
 ENV LANG C.UTF-8
 
-COPY ./.irbrc /root
-COPY ./.pryrc /root
-COPY ./.bashrc /root
+COPY ./.irbrc /${_USER}
+COPY ./.pryrc /${_USER}
+COPY ./.bashrc /${_USER}
 
 # Reference: https://github.com/jfroom/docker-compose-rails-selenium-example
 COPY ./docker-entrypoint.sh /
