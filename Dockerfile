@@ -30,3 +30,7 @@ ENV BUNDLE_PATH=/.gems \
     BUNDLE_BIN=/.gems/bin \
     GEM_HOME=/.gems
 ENV PATH="${BUNDLE_BIN}:${PATH}"
+
+RUN gem install terminal-table
+RUN gem install pry-byebug
+RUN gem install awesome_print
