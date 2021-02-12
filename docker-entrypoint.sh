@@ -6,7 +6,7 @@ set -e
 
 # Ensure all gems installed. Add binstubs to bin which has been added to PATH in Dockerfile.
 if [[ -f Gemfile ]]; then
-  bundle check || bundle install --binstubs="$BUNDLE_BIN"
+  bundle check || bundle install
 fi
 
 if [ $# -eq 0 ]; then
