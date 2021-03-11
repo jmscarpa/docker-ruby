@@ -15,14 +15,13 @@ if defined?(Rails::Console)
   rows << ['Pry', defined?(Pry) == "constant" ? "Loaded" : "Not Loaded"]
 
   table = Terminal::Table.new headings: header, rows: rows
-
   puts table
-end
 
-begin
-  require "pry"
-  Pry.start
-  exit
-rescue LoadError => e
-  warn "=> Unable to load pry"
+  begin
+    require "pry"
+    Pry.start
+    exit
+  rescue LoadError => e
+    warn "=> Unable to load pry"
+  end
 end

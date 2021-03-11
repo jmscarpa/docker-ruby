@@ -1,74 +1,70 @@
 require 'terminal-table'
 
-if defined?(Rails::Console) && Rails.env
+def query(sql)
+  ActiveRecord::Base.connection.exec_query(sql).map(&:to_h)
+end
 
-  def query(sql)
-    ActiveRecord::Base.connection.exec_query(sql).map(&:to_h)
+def query_columns(sql)
+  ActiveRecord::Base.connection.select_all(sql)
+end
+
+def table(sql)
+  result = query_columns(sql)
+
+  table = Terminal::Table.new title: 'Table query', headings: result.columns, rows: result.rows
+  table.add_row :separator
+  table.add_row [{ value: "Record count #{result.rows.length}", colspan: result.columns.length }]
+
+  puts table
+end
+
+def environment
+  return "** #{ENV['RAILS_ENV'].upcase} **".red if Rails.env.production?
+
+  ENV['RAILS_ENV'].yellow
+end
+
+def adapter
+  "#{ENV['DATABASE_ADAPTER']}@#{ENV['DATABASE_NAME']}".yellow
+end
+
+def console_info(obj, nest_level, separator)
+  return "\e[1;32mRuby #{RUBY_VERSION} in #{environment} \e[1;35mwith #{adapter}\e[36m (scope #{obj}) \n#{separator} \e[0m" if nest_level.zero?
+
+  "\e[1;32mRuby #{RUBY_VERSION} in #{environment} \e[1;35mwith #{adapter}\e[36m (scope #{obj}) at level #{nest_level}\n#{separator} \e[0m"
+end
+
+Pry.editor = ENV['EDITOR'] || 'vi'
+
+Pry::Prompt.add(
+  :labs,
+  'Prompt da embraslabs',
+  ['>', '*']
+  ) do |obj, nest_level, _, separator|
+  separator == '>' ? console_info(obj, nest_level, separator) : '*'
+end
+
+Pry.prompt = Pry::Prompt[:labs]
+Pry.config.ls.separator = "\n"
+Pry.config.ls.heading_color = :magenta
+Pry.config.ls.public_method_color = :green
+Pry.config.ls.protected_method_color = :yellow
+Pry.config.ls.private_method_color = :bright_black
+
+Pry.config.exception_handler = proc do |output, exception, _|
+  output.puts "\e[31m#{exception.class}: #{exception.message}"
+  output.puts "from #{exception.backtrace.first}\e[0m"
+end
+
+if defined?(Rails::ConsoleMethods)
+  include Rails::ConsoleMethods
+else
+  def reload!(print = true)
+    puts 'Reloading...' if print
+    ActionDispatch::Reloader.cleanup!
+    ActionDispatch::Reloader.prepare!
+    true
   end
-
-  def query_columns(sql)
-    ActiveRecord::Base.connection.select_all(sql)
-  end
-
-  def table(sql)
-    result = query_columns(sql)
-
-    table = Terminal::Table.new title: 'Table query', headings: result.columns, rows: result.rows
-    table.add_row :separator
-    table.add_row [{ value: "Record count #{result.rows.length}", colspan: result.columns.length }]
-
-    puts table
-  end
-
-  def environment
-    return "** #{ENV['RAILS_ENV'].upcase} **".red if Rails.env.production?
-
-    ENV['RAILS_ENV'].yellow
-  end
-
-  def adapter
-    "#{ENV['DATABASE_ADAPTER']}@#{ENV['DATABASE_NAME']}".yellow
-  end
-
-  def console_info(obj, nest_level, separator)
-    return "\e[1;32mRuby #{RUBY_VERSION} in #{environment} \e[1;35mwith #{adapter}\e[36m (scope #{obj}) \n#{separator} \e[0m" if nest_level.zero?
-
-    "\e[1;32mRuby #{RUBY_VERSION} in #{environment} \e[1;35mwith #{adapter}\e[36m (scope #{obj}) at level #{nest_level}\n#{separator} \e[0m"
-  end
-
-  Pry.editor = ENV['EDITOR'] || 'vi'
-
-  Pry::Prompt.add(
-    :labs,
-    'Prompt da embraslabs',
-    ['>', '*']
-    ) do |obj, nest_level, _, separator|
-    separator == '>' ? console_info(obj, nest_level, separator) : '*'
-  end
-
-  Pry.prompt = Pry::Prompt[:labs]
-  Pry.config.ls.separator = "\n"
-  Pry.config.ls.heading_color = :magenta
-  Pry.config.ls.public_method_color = :green
-  Pry.config.ls.protected_method_color = :yellow
-  Pry.config.ls.private_method_color = :bright_black
-
-  Pry.config.exception_handler = proc do |output, exception, _|
-    output.puts "\e[31m#{exception.class}: #{exception.message}"
-    output.puts "from #{exception.backtrace.first}\e[0m"
-  end
-
-  if defined?(Rails::ConsoleMethods)
-    include Rails::ConsoleMethods
-  else
-    def reload!(print = true)
-     puts 'Reloading...' if print
-     ActionDispatch::Reloader.cleanup!
-     ActionDispatch::Reloader.prepare!
-     true
-   end
- end
-
 end
 
 Pry.config.print = proc do |output, value|
